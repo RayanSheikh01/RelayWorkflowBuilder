@@ -1,0 +1,128 @@
+/* ── Node Cards ──────────────────────────────────────────── */
+
+.workflow-node {
+  position: absolute;
+  width: 220px;
+  background: rgba(26, 26, 36, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  cursor: default;
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+  user-select: none;
+}
+
+.workflow-node:hover {
+  border-color: var(--border-light);
+}
+
+.workflow-node.selected {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(124, 92, 252, 0.3), var(--shadow-lg);
+}
+
+/* ── Node Accent Strip ───────────────────────────────────── */
+
+.node-accent {
+  height: 4px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+/* ── Node Header ─────────────────────────────────────────── */
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  cursor: grab;
+}
+
+.node-header:active {
+  cursor: grabbing;
+}
+
+.node-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.node-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.node-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  padding: 0 var(--space-md) var(--space-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Node Handles (Connection Points) ────────────────────── */
+
+.node-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 2px solid var(--border-light);
+  cursor: crosshair;
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.node-handle:hover {
+  transform: scale(1.4);
+  border-color: var(--accent-primary);
+  background: var(--accent-primary);
+}
+
+.node-handle.handle-input {
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.node-handle.handle-input:hover {
+  transform: translateY(-50%) scale(1.4);
+}
+
+.node-handle.handle-output {
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.node-handle.handle-output:hover {
+  transform: translateY(-50%) scale(1.4);
+}
+
+/* ── Node Status Indicator ───────────────────────────────── */
+
+.node-status {
+  height: 3px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.node-status.running .node-status-bar {
+  height: 100%;
+  background: var(--accent-primary);
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.node-status.success {
+  background: var(--accent-success);
+}
+
+.node-status.error {
+  background: var(--accent-error);
+}

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Relay — A lightweight AI workflow builder. Drag-and-drop nodes to compose and execute AI pipelines." />
+    <title>Relay — AI Workflow Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- Top Bar -->
+      <header id="topbar">
+        <div class="topbar-left">
+          <span class="logo">⚡ Relay</span>
+        </div>
+        <div class="topbar-center">
+          <input
+            id="workflow-name"
+            type="text"
+            value="Untitled Workflow"
+            spellcheck="false"
+            aria-label="Workflow name"
+          />
+        </div>
+        <div class="topbar-right">
+          <button id="btn-save" class="btn btn-secondary">Save</button>
+          <button id="btn-execute" class="btn btn-primary">▶ Execute</button>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <main id="workspace">
+
+        <!-- Left Sidebar: Node Palette -->
+        <aside id="node-palette">
+          <h2 class="panel-title">Nodes</h2>
+          <div id="palette-list">
+            <!-- Node type cards will be rendered here by JS -->
+          </div>
+        </aside>
+
+        <!-- Canvas -->
+        <div id="canvas-container">
+          <div id="canvas-world">
+            <svg id="canvas-edges"></svg>
+            <div id="canvas-nodes"></div>
+          </div>
+          <div id="canvas-empty-state">
+            <p>Drag a node from the sidebar to get started</p>
+          </div>
+        </div>
+
+        <!-- Right Sidebar: Config Panel -->
+        <aside id="config-panel">
+          <div id="config-content">
+            <div id="config-empty" class="config-placeholder">
+              <p>Select a node to configure</p>
+            </div>
+            <!-- Dynamic config form will be rendered here by JS -->
+          </div>
+        </aside>
+
+      </main>
+
+      <!-- Status Bar -->
+      <footer id="status-bar">
+        <span id="status-nodes">Nodes: 0</span>
+        <span class="status-divider">|</span>
+        <span id="status-edges">Edges: 0</span>
+        <span class="status-divider">|</span>
+        <span id="status-state">Idle</span>
+      </footer>
+
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

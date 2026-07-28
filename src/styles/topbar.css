@@ -1,0 +1,62 @@
+/* ── Top Bar ──────────────────────────────────────────────── */
+
+#topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  user-select: none;
+}
+
+.topbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+#workflow-name {
+  width: 260px;
+  text-align: center;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
+}
+
+#workflow-name:hover {
+  border-color: var(--border);
+}
+
+#workflow-name:focus {
+  border-color: var(--accent-primary);
+  background: var(--bg-elevated);
+  outline: none;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
