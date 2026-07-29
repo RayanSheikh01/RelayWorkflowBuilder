@@ -1,11 +1,11 @@
 import { describe, test, expect } from "vitest";
-import { screenToCanvas, canvasToScreen } from "../../src/utils/geometry.js";
+import { screenToCanvas, canvasToScreen, computeEdgePath } from "../../src/utils/geometry.js";
 
 describe("geometry", () => {
     describe("screenToCanvas and canvasToScreen", () => {
         test("Identity at origin with zoom=1", () => {
             const viewport = { x: 0, y: 0, zoom: 1 };
-            
+
             expect(screenToCanvas(100, 200, viewport)).toEqual({ x: 100, y: 200 });
             expect(canvasToScreen(100, 200, viewport)).toEqual({ x: 100, y: 200 });
         });
@@ -13,10 +13,10 @@ describe("geometry", () => {
         test("Accounts for pan offset correctly", () => {
             // Panned 50px right and 50px down
             const viewport = { x: 50, y: 50, zoom: 1 };
-            
+
             // A click at screen (100, 100) should map to canvas (50, 50)
             expect(screenToCanvas(100, 100, viewport)).toEqual({ x: 50, y: 50 });
-            
+
             // A node at canvas (50, 50) should render at screen (100, 100)
             expect(canvasToScreen(50, 50, viewport)).toEqual({ x: 100, y: 100 });
         });
@@ -24,10 +24,10 @@ describe("geometry", () => {
         test("Accounts for zoom correctly", () => {
             // Zoomed in 2x at the origin
             const viewport = { x: 0, y: 0, zoom: 2 };
-            
+
             // A click at screen (100, 100) maps to canvas (50, 50)
             expect(screenToCanvas(100, 100, viewport)).toEqual({ x: 50, y: 50 });
-            
+
             // A node at canvas (50, 50) renders at screen (100, 100)
             expect(canvasToScreen(50, 50, viewport)).toEqual({ x: 100, y: 100 });
         });
@@ -35,10 +35,10 @@ describe("geometry", () => {
         test("Accounts for both pan and zoom combined", () => {
             // Panned and zoomed
             const viewport = { x: 100, y: -50, zoom: 0.5 };
-            
+
             // Screen (200, 50) -> subtract pan (100, 100) -> divide zoom -> Canvas (200, 200)
             expect(screenToCanvas(200, 50, viewport)).toEqual({ x: 200, y: 200 });
-            
+
             // Canvas (200, 200) -> multiply zoom -> add pan -> Screen (200, 50)
             expect(canvasToScreen(200, 200, viewport)).toEqual({ x: 200, y: 50 });
         });
@@ -47,13 +47,51 @@ describe("geometry", () => {
             const viewport = { x: -123, y: 456, zoom: 1.25 };
             const screenX = 800;
             const screenY = 600;
-            
+
             const canvasPoint = screenToCanvas(screenX, screenY, viewport);
             const returnedScreen = canvasToScreen(canvasPoint.x, canvasPoint.y, viewport);
-            
+
             // Floating point math might have tiny inaccuracies, so checking close to
             expect(returnedScreen.x).toBeCloseTo(screenX);
             expect(returnedScreen.y).toBeCloseTo(screenY);
         });
+
+        test("computeEdgePath returns a valid SVG path string", () => {
+            const x1 = 100, y1 = 100, x2 = 300, y2 = 300;
+            const path = computeEdgePath(x1, y1, x2, y2);
+
+            // Check that the path starts with 'M' and contains 'C'
+            expect(path.startsWith('M')).toBe(true);
+            expect(path.includes('C')).toBe(true);
+
+            // Check that the path ends with the target coordinates
+            expect(path.endsWith(`${x2} ${y2}`)).toBe(true);
+        });
+
+        test("computeEdgePath handles very close nodes", () => {
+            const x1 = 100, y1 = 100, x2 = 105, y2 = 105;
+            const path = computeEdgePath(x1, y1, x2, y2);
+
+            // Check that the path starts with 'M' and contains 'C'
+            expect(path.startsWith('M')).toBe(true);
+            expect(path.includes('C')).toBe(true);
+
+            // Check that the path ends with the target coordinates
+            expect(path.endsWith(`${x2} ${y2}`)).toBe(true);
+        });
+
+        test("computeEdgePath handles very far nodes", () => {
+            const x1 = 0, y1 = 0, x2 = 10000, y2 = 10000;
+            const path = computeEdgePath(x1, y1, x2, y2);
+
+            // Check that the path starts with 'M' and contains 'C'
+            expect(path.startsWith('M')).toBe(true);
+            expect(path.includes('C')).toBe(true);
+
+            // Check that the path ends with the target coordinates
+            expect(path.endsWith(`${x2} ${y2}`)).toBe(true);
+        });
+
     });
 });
+
