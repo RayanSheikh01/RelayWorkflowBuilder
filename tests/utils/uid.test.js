@@ -1,9 +1,9 @@
 import { describe, test, expect } from "vitest";
-import { generateUID } from "../../src/utils/uid.js";
+import { uid } from "../../src/utils/uid.js";
 
 describe("uid generator", () => {
     test("Returns a string", () => {
-        const id = generateUID();
+        const id = uid();
         expect(typeof id).toBe("string");
         expect(id.length).toBeGreaterThan(0);
     });
@@ -11,14 +11,14 @@ describe("uid generator", () => {
     test("Returns unique values (generate 1000, check all different)", () => {
         const generated = new Set();
         for (let i = 0; i < 1000; i++) {
-            generated.add(generateUID());
+            generated.add(uid());
         }
         expect(generated.size).toBe(1000);
     });
 
     test("Accepts an optional prefix", () => {
-        const nodeId = generateUID("node");
-        const edgeId = generateUID("edge");
+        const nodeId = uid("node");
+        const edgeId = uid("edge");
         
         expect(nodeId.startsWith("node_")).toBe(true);
         expect(edgeId.startsWith("edge_")).toBe(true);

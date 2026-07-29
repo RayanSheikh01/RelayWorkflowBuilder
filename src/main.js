@@ -1,9 +1,11 @@
-
-
 import './styles/index.css';
-console.log('⚡ Relay — AI Workflow Builder');
-console.log('Step 0 complete. Ready for Step 1.');
-
-
 import { renderNodePalette } from './panels/nodePalette.js';
+import { setupCanvas } from './canvas/canvas.js';
+import { setupNodeRenderer } from './canvas/nodeRenderer.js';
+
+console.log('⚡ Relay — AI Workflow Builder');
+console.log('Initializing Step 6 layout...');
+
 renderNodePalette();
+setupCanvas();
+setupNodeRenderer();

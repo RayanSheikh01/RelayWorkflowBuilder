@@ -1,4 +1,7 @@
 import { getAllNodeTypes, getNodeDef } from "../nodes/nodeRegistry.js";
+import { store } from "../store.js";
+import { screenToCanvas } from "../utils/geometry.js";
+import { uid } from "../utils/uid.js";
 
 // Step 4 Drag-to-canvas flow state
 let draggingNodeType = null;
@@ -67,8 +70,30 @@ window.addEventListener("pointerup", (e) => {
       e.clientX >= rect.left && e.clientX <= rect.right &&
       e.clientY >= rect.top && e.clientY <= rect.bottom
     ) {
-      console.log(`Dropped node '${draggingNodeType}' at position: { x: ${e.clientX - rect.left}, y: ${e.clientY - rect.top} }`);
-      // Future step: add node to workflow state here
+      const viewport = store.getState().ui.viewport;
+      
+      // Calculate logical position on the canvas
+      const canvasPos = screenToCanvas(e.clientX, e.clientY, viewport);
+      
+      // Get defaults
+      const nodeDef = getNodeDef(draggingNodeType);
+      const newId = uid("node");
+      
+      const newNode = {
+        id: newId,
+        type: draggingNodeType,
+        position: canvasPos,
+        data: JSON.parse(JSON.stringify(nodeDef.defaultData)) // Deep clone default data
+      };
+      
+      // Add to store
+      const currentNodes = store.getState().workflow.nodes;
+      store.setState("workflow.nodes", {
+        ...currentNodes,
+        [newId]: newNode
+      });
+      
+      console.log(`Created node ${newId} at`, canvasPos);
     } else {
       console.log("Drop cancelled (outside canvas).");
     }
