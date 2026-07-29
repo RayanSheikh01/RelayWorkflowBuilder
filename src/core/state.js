@@ -1,3 +1,4 @@
+
 export function createStore(initialState) {
     const state = new Proxy(initialState, {
         set(target, property, value) {
