@@ -67,7 +67,19 @@ describe("geometry", () => {
             // Check that the path ends with the target coordinates
             expect(path.endsWith(`${x2} ${y2}`)).toBe(true);
         });
+    });
+    describe("computeEdgePath edge cases", () => {
+        test("computeEdgePath handles zero-length edges", () => {
+            const x1 = 100, y1 = 100, x2 = 100, y2 = 100;
+            const path = computeEdgePath(x1, y1, x2, y2);
 
+            // Check that the path starts with 'M' and contains 'C'
+            expect(path.startsWith('M')).toBe(true);
+            expect(path.includes('C')).toBe(true);
+
+            // Check that the path ends with the target coordinates
+            expect(path.endsWith(`${x2} ${y2}`)).toBe(true);
+        });
         test("computeEdgePath handles very close nodes", () => {
             const x1 = 100, y1 = 100, x2 = 105, y2 = 105;
             const path = computeEdgePath(x1, y1, x2, y2);

@@ -9,3 +9,4 @@ console.log('Initializing Step 6 layout...');
 renderNodePalette();
 setupCanvas();
 setupNodeRenderer();
+setupConnectionHandler();

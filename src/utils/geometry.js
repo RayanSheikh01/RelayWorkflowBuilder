@@ -19,3 +19,4 @@ export function computeEdgePath(x1, y1, x2, y2) {
     const controlPointOffsetY = dy * 0.5;
     return `M ${x1} ${y1} C ${x1 + controlPointOffsetX} ${y1 + controlPointOffsetY}, ${x2 - controlPointOffsetX} ${y2 - controlPointOffsetY}, ${x2} ${y2}`;
 }
+

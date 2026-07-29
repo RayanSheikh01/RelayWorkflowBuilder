@@ -115,6 +115,8 @@ function renderNodes(nodes, selectedNodeId) {
         if (def.inputs.length > 0) {
             const inputHandle = document.createElement("div");
             inputHandle.className = "node-handle input-handle";
+            inputHandle.dataset.nodeId = nodeId;
+            inputHandle.dataset.handleId = "input";
             inputHandle.style.position = "absolute";
             inputHandle.style.left = "-4px";
             inputHandle.style.top = "50%";
@@ -129,6 +131,8 @@ function renderNodes(nodes, selectedNodeId) {
         if (def.outputs.length > 0) {
             const outputHandle = document.createElement("div");
             outputHandle.className = "node-handle output-handle";
+            outputHandle.dataset.nodeId = nodeId;
+            outputHandle.dataset.handleId = "output";
             outputHandle.style.position = "absolute";
             outputHandle.style.right = "-4px";
             outputHandle.style.top = "50%";
