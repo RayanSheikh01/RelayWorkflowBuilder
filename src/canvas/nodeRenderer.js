@@ -107,6 +107,12 @@ function renderNodes(nodes, selectedNodeId) {
 
         // Select node by clicking anywhere on it
         nodeEl.addEventListener("pointerdown", (e) => {
+            if (e.target.closest(".node-handle")) {
+                // If they clicked a handle, still select the node, 
+                // but let the event bubble up to connectionHandler.js
+                store.setState("ui.selectedNodeId", nodeId);
+                return;
+            }
             e.stopPropagation();
             store.setState("ui.selectedNodeId", nodeId);
         });
@@ -118,13 +124,15 @@ function renderNodes(nodes, selectedNodeId) {
             inputHandle.dataset.nodeId = nodeId;
             inputHandle.dataset.handleId = "input";
             inputHandle.style.position = "absolute";
-            inputHandle.style.left = "-4px";
-            inputHandle.style.top = "50%";
-            inputHandle.style.transform = "translateY(-50%)";
-            inputHandle.style.width = "8px";
-            inputHandle.style.height = "8px";
-            inputHandle.style.backgroundColor = "#8888A8";
-            inputHandle.style.borderRadius = "50%";
+            inputHandle.style.left = "-10px";
+            inputHandle.style.top = "0";
+            inputHandle.style.height = "100%";
+            inputHandle.style.width = "20px";
+            inputHandle.style.cursor = "crosshair";
+            inputHandle.style.zIndex = "10";
+            
+            // Visual dot
+            inputHandle.innerHTML = `<div style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background-color: #8888A8; border-radius: 50%; pointer-events: none;"></div>`;
             nodeEl.appendChild(inputHandle);
         }
 
@@ -134,13 +142,15 @@ function renderNodes(nodes, selectedNodeId) {
             outputHandle.dataset.nodeId = nodeId;
             outputHandle.dataset.handleId = "output";
             outputHandle.style.position = "absolute";
-            outputHandle.style.right = "-4px";
-            outputHandle.style.top = "50%";
-            outputHandle.style.transform = "translateY(-50%)";
-            outputHandle.style.width = "8px";
-            outputHandle.style.height = "8px";
-            outputHandle.style.backgroundColor = "#8888A8";
-            outputHandle.style.borderRadius = "50%";
+            outputHandle.style.right = "-10px";
+            outputHandle.style.top = "0";
+            outputHandle.style.height = "100%";
+            outputHandle.style.width = "20px";
+            outputHandle.style.cursor = "crosshair";
+            outputHandle.style.zIndex = "10";
+            
+            // Visual dot
+            outputHandle.innerHTML = `<div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background-color: #8888A8; border-radius: 50%; pointer-events: none;"></div>`;
             nodeEl.appendChild(outputHandle);
         }
 
