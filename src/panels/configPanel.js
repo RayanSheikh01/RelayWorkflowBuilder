@@ -107,17 +107,17 @@ export function renderConfigForm(node, nodeId) {
                 inputElement.step = field.step || 1;
                 inputElement.value = node.data[field.key] ?? 0;
                 inputElement.style.flex = "1";
-                
+
                 const valDisplay = document.createElement("span");
                 valDisplay.textContent = inputElement.value;
                 valDisplay.className = "slider-value";
                 valDisplay.style.minWidth = "30px";
-                
+
                 inputElement.addEventListener("input", (e) => {
                     valDisplay.textContent = e.target.value;
                     updateState(Number(e.target.value));
                 });
-                
+
                 sliderContainer.appendChild(inputElement);
                 sliderContainer.appendChild(valDisplay);
                 fieldContainer.appendChild(sliderContainer);
@@ -126,9 +126,9 @@ export function renderConfigForm(node, nodeId) {
             case "key-value":
                 inputElement = document.createElement("div");
                 inputElement.className = "key-value-container";
-                
+
                 const data = node.data[field.key] || {};
-                
+
                 const renderKV = () => {
                     inputElement.innerHTML = "";
                     Object.entries(data).forEach(([k, v]) => {
@@ -137,26 +137,26 @@ export function renderConfigForm(node, nodeId) {
                         row.style.display = "flex";
                         row.style.gap = "4px";
                         row.style.marginBottom = "4px";
-                        
+
                         const keyInp = document.createElement("input");
                         keyInp.type = "text";
                         keyInp.value = k;
                         keyInp.placeholder = "Key";
                         keyInp.style.flex = "1";
                         keyInp.style.minWidth = "0";
-                        
+
                         const valInp = document.createElement("input");
                         valInp.type = "text";
                         valInp.value = v;
                         valInp.placeholder = "Value";
                         valInp.style.flex = "1";
                         valInp.style.minWidth = "0";
-                        
+
                         const delBtn = document.createElement("button");
                         delBtn.textContent = "×";
                         delBtn.className = "btn-icon";
                         delBtn.style.padding = "0 8px";
-                        
+
                         const updateKV = () => {
                             const newData = {};
                             Array.from(inputElement.querySelectorAll(".kv-row")).forEach(r => {
@@ -166,7 +166,7 @@ export function renderConfigForm(node, nodeId) {
                             });
                             updateState(newData);
                         };
-                        
+
                         keyInp.addEventListener("input", updateKV);
                         valInp.addEventListener("input", updateKV);
                         delBtn.addEventListener("click", () => {
@@ -174,13 +174,13 @@ export function renderConfigForm(node, nodeId) {
                             renderKV();
                             updateKV();
                         });
-                        
+
                         row.appendChild(keyInp);
                         row.appendChild(valInp);
                         row.appendChild(delBtn);
                         inputElement.appendChild(row);
                     });
-                    
+
                     const addBtn = document.createElement("button");
                     addBtn.textContent = "+ Add";
                     addBtn.className = "btn-secondary btn-sm";
@@ -192,7 +192,7 @@ export function renderConfigForm(node, nodeId) {
                     });
                     inputElement.appendChild(addBtn);
                 };
-                
+
                 renderKV();
                 fieldContainer.appendChild(inputElement);
                 break;

@@ -2,6 +2,7 @@
 export function saveWorkflow(id, data) {
     const key = `relay_wf_${id}`;
     localStorage.setItem(key, JSON.stringify(data));
+    console.log(`Workflow saved with ID: ${id}`);
     return id;
 }
 

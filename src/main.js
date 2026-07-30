@@ -5,11 +5,13 @@ import { setupNodeRenderer } from './canvas/nodeRenderer.js';
 import { setupConnectionHandler } from './canvas/connectionHandler.js';
 import { setupEdgeRenderer } from './canvas/edgeRenderer.js';
 import { setupConfigPanel } from './panels/configPanel.js';
+import { setupTopbar } from './panels/topbar.js';
 
 console.log('⚡ Relay — AI Workflow Builder');
 console.log('Initializing Step 6 layout...');
 
 renderNodePalette();
+setupTopbar();
 setupConfigPanel();
 setupCanvas();
 setupNodeRenderer();
