@@ -82,7 +82,8 @@ function renderNodes(nodes, selectedNodeId) {
 
         // Set position
         nodeEl.style.position = "absolute";
-        nodeEl.style.transform = `translate(${node.position.x}px, ${node.position.y}px)`;
+        nodeEl.style.left = `${node.position.x}px`;
+        nodeEl.style.top = `${node.position.y}px`;
         nodeEl.style.width = "220px";
         nodeEl.style.backgroundColor = "rgba(26, 26, 36, 0.85)";
         nodeEl.style.border = "1px solid #2E2E44";
