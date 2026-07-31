@@ -20,7 +20,10 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "better-sqlite3": "^13.0.2",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "nodemailer": "^9.0.3"
   }
 }
