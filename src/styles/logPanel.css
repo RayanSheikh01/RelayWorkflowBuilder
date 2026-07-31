@@ -1,0 +1,87 @@
+/* ============================================================
+   Execution Log Panel
+   ============================================================ */
+
+#log-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    transition: height var(--transition-smooth);
+    height: 240px;
+    z-index: 100;
+}
+
+#log-panel.collapsed {
+    height: 36px;
+}
+
+#log-header {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-md);
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+}
+
+.log-title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+#btn-toggle-log {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-xs);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--transition-normal);
+}
+
+#log-panel.collapsed #btn-toggle-log svg {
+    transform: rotate(180deg);
+}
+
+#btn-toggle-log:hover {
+    color: var(--text-primary);
+    background: var(--glass-bg);
+}
+
+#log-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm);
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.log-entry {
+    margin-bottom: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    display: flex;
+    gap: var(--space-sm);
+    word-break: break-all;
+}
+
+.log-entry .timestamp {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.log-entry.info { color: var(--text-secondary); }
+.log-entry.success { color: var(--accent-success); background: rgba(52, 211, 153, 0.1); }
+.log-entry.error { color: var(--accent-error); background: rgba(248, 113, 113, 0.1); }

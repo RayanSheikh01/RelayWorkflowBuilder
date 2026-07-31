@@ -1,42 +1,78 @@
-//  Validate → sort → execute sequentially, updating node status in UI state
+import { validateWorkflow } from './validator.js';
+import { topologicalSort } from './topologicalSort.js';
+import { appendLog } from '../panels/logPanel.js';
 
-export function executeWorkflow(store) {
+export async function executeWorkflow(store) {
     const state = store.getState();
-    const nodes = state.workflow.nodes;
-    const edges = state.workflow.edges;
+    const nodes = state.workflow.nodes || {};
+    const edges = state.workflow.edges || {};
 
-    // Validate workflow
     if (!validateWorkflow(nodes, edges)) {
-        console.error("Workflow validation failed. Execution aborted.");
+        appendLog(`Workflow validation failed. Cycle detected or no nodes.`, 'error');
         return;
     }
 
-    // Topologically sort nodes
-    const sortedNodes = topologicalSort(nodes, edges);
+    let sortedNodes;
+    try {
+        sortedNodes = topologicalSort(nodes, edges);
+    } catch (e) {
+        appendLog(`Sort failed: ${e.message}`, 'error');
+        return;
+    }
+
+    appendLog(`Starting execution of ${sortedNodes.length} nodes...`, 'info');
 
     // Execute nodes sequentially
     for (const nodeId of sortedNodes) {
         const node = nodes[nodeId];
         if (!node) continue;
 
-        // Update node status to "running"
         store.setState(`workflow.nodes.${nodeId}.status`, "running");
+        appendLog(`Running node [${node.type}] ${nodeId}...`, 'info');
 
         try {
-            // Execute node logic (placeholder for actual execution logic)
-            console.log(`Executing node ${nodeId} of type ${node.type}`);
-            // Simulate execution delay
-            // In a real scenario, you would call the node's execution function here
-            // For example: await executeNode(node);
+            // Gather inputs from connected edges
+            const inputs = {};
+            Object.values(edges).forEach(edge => {
+                if (edge.target === nodeId) {
+                    const sourceNode = nodes[edge.source];
+                    if (sourceNode && sourceNode.output !== undefined) {
+                        inputs[edge.targetHandle] = sourceNode.output;
+                    }
+                }
+            });
 
-            // Update node status to "completed"
-            store.setState(`workflow.nodes.${nodeId}.status`, "completed");
-        }
+            const response = await fetch('http://localhost:3001/api/execute/node', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: node.type,
+                    data: node.data || {},
+                    inputs
+                })
+            });
 
-        catch (error) {
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || `HTTP error ${response.status}`);
+            }
+
+            store.setState(`workflow.nodes.${nodeId}.status`, "success");
+            store.setState(`workflow.nodes.${nodeId}.output`, result.output);
+            store.setState(`workflow.nodes.${nodeId}.error`, null);
+            
+            appendLog(`Node [${node.type}] ${nodeId} succeeded.`, 'success');
+
+        } catch (error) {
             console.error(`Error executing node ${nodeId}:`, error);
-            // Update node status to "error"
             store.setState(`workflow.nodes.${nodeId}.status`, "error");
+            store.setState(`workflow.nodes.${nodeId}.error`, error.message);
+            appendLog(`Node [${node.type}] ${nodeId} failed: ${error.message}`, 'error');
+            appendLog(`Execution aborted due to error.`, 'error');
+            break;
         }
     }
+    
+    appendLog(`Execution workflow completed.`, 'info');
 }

@@ -85,6 +85,16 @@ function renderNodes(nodes, selectedNodeId) {
         nodeEl.style.borderRadius = "12px";
         nodeEl.style.color = "#E8E8F0";
 
+        let outputPreview = '';
+        if (node.status === 'running') {
+            outputPreview = '<div style="margin-top: 8px; color: var(--accent-warning);">Running...</div>';
+        } else if (node.status === 'error') {
+            outputPreview = `<div style="margin-top: 8px; color: var(--accent-error); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${node.error}">Error: ${node.error}</div>`;
+        } else if (node.status === 'success' && node.output !== undefined) {
+            const outStr = typeof node.output === 'object' ? JSON.stringify(node.output) : String(node.output);
+            outputPreview = `<div style="margin-top: 8px; color: var(--accent-success); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${outStr.replace(/"/g, '&quot;')}">${outStr}</div>`;
+        }
+
         // Inner HTML
         nodeEl.innerHTML = `
             <div class="node-header" style="padding: 8px; border-bottom: 1px solid #2E2E44; cursor: grab; display: flex; align-items: center; gap: 8px;">
@@ -93,7 +103,8 @@ function renderNodes(nodes, selectedNodeId) {
                 <span class="node-title">${def.label}</span>
             </div>
             <div class="node-content" style="padding: 12px; font-size: 12px; color: #8888A8;">
-                <pre style="margin:0; overflow: hidden; text-overflow: ellipsis;">${JSON.stringify(node.data).substring(0, 50)}...</pre>
+                <pre style="margin:0; overflow: hidden; text-overflow: ellipsis;">${JSON.stringify(node.data || {}).substring(0, 50)}...</pre>
+                ${outputPreview}
             </div>
         `;
 

@@ -1,5 +1,6 @@
 import { store } from "../store.js";
 import { saveWorkflow, loadWorkflow } from "../core/storage.js";
+import { executeWorkflow } from "../engine/executor.js";
 
 let currentWorkflowId = "default";
 
@@ -40,4 +41,12 @@ export function setupTopbar() {
             btnSave.disabled = false;
         }, 1500);
     });
+
+    // Execute button click
+    const btnExecute = document.getElementById("btn-execute");
+    if (btnExecute) {
+        btnExecute.addEventListener("click", () => {
+            executeWorkflow(store);
+        });
+    }
 }

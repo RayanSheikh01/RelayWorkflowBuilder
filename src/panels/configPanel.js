@@ -2,17 +2,29 @@ import { store } from "../store.js";
 import { getNodeDef } from "../nodes/nodeRegistry.js";
 
 let lastSelectedId = null;
+let lastStatus = null;
+let lastOutput = undefined;
 
 export function setupConfigPanel() {
     store.subscribe((state) => {
         const selectedId = state.ui.selectedNodeId;
+        const node = selectedId ? state.workflow.nodes[selectedId] : null;
+
+        let needsRender = false;
+
         if (selectedId !== lastSelectedId) {
-            lastSelectedId = selectedId;
-            if (selectedId && state.workflow.nodes[selectedId]) {
-                renderConfigForm(state.workflow.nodes[selectedId], selectedId);
-            } else {
-                renderConfigForm(null);
+            needsRender = true;
+        } else if (node) {
+            if (node.status !== lastStatus || node.output !== lastOutput) {
+                needsRender = true;
             }
+        }
+
+        if (needsRender) {
+            lastSelectedId = selectedId;
+            lastStatus = node ? node.status : null;
+            lastOutput = node ? node.output : undefined;
+            renderConfigForm(node, selectedId);
         }
     });
 }
@@ -41,8 +53,71 @@ export function renderConfigForm(node, nodeId) {
     header.innerHTML = `<h3>${def.icon} ${def.label}</h3>`;
     formContainer.appendChild(header);
 
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.style.display = "flex";
+    tabs.style.gap = "16px";
+    tabs.style.padding = "0 var(--space-md)";
+    tabs.style.borderBottom = "1px solid var(--border)";
+    tabs.style.marginBottom = "16px";
+
+    const btnSettings = document.createElement("button");
+    btnSettings.textContent = "Settings";
+    btnSettings.style.background = "none";
+    btnSettings.style.border = "none";
+    btnSettings.style.color = "var(--text-primary)";
+    btnSettings.style.padding = "8px 0";
+    btnSettings.style.borderBottom = "2px solid var(--accent-primary)";
+    btnSettings.style.cursor = "pointer";
+
+    const btnOutput = document.createElement("button");
+    btnOutput.textContent = "Output";
+    btnOutput.style.background = "none";
+    btnOutput.style.border = "none";
+    btnOutput.style.color = "var(--text-muted)";
+    btnOutput.style.padding = "8px 0";
+    btnOutput.style.borderBottom = "2px solid transparent";
+    btnOutput.style.cursor = "pointer";
+
+    tabs.appendChild(btnSettings);
+    tabs.appendChild(btnOutput);
+    formContainer.appendChild(tabs);
+
     const form = document.createElement("div");
     form.className = "config-form";
+    
+    const outputView = document.createElement("div");
+    outputView.style.padding = "0 var(--space-md)";
+    outputView.style.display = "none";
+    
+    if (node.status === 'success' && node.output !== undefined) {
+        const outStr = typeof node.output === 'object' ? JSON.stringify(node.output, null, 2) : String(node.output);
+        outputView.innerHTML = `<pre style="white-space: pre-wrap; font-size: 12px; color: var(--text-primary); background: var(--bg-elevated); padding: 8px; border-radius: 4px;">${outStr.replace(/</g, '&lt;')}</pre>`;
+    } else if (node.status === 'error') {
+        outputView.innerHTML = `<div style="color: var(--accent-error); font-size: 12px; background: rgba(248, 113, 113, 0.1); padding: 8px; border-radius: 4px;">Error: ${node.error}</div>`;
+    } else if (node.status === 'running') {
+        outputView.innerHTML = `<div style="color: var(--accent-warning); font-size: 12px;">Running...</div>`;
+    } else {
+        outputView.innerHTML = `<div style="color: var(--text-muted); font-size: 12px;">No output yet</div>`;
+    }
+
+    btnSettings.addEventListener("click", () => {
+        btnSettings.style.color = "var(--text-primary)";
+        btnSettings.style.borderBottom = "2px solid var(--accent-primary)";
+        btnOutput.style.color = "var(--text-muted)";
+        btnOutput.style.borderBottom = "2px solid transparent";
+        form.style.display = "block";
+        outputView.style.display = "none";
+    });
+
+    btnOutput.addEventListener("click", () => {
+        btnOutput.style.color = "var(--text-primary)";
+        btnOutput.style.borderBottom = "2px solid var(--accent-primary)";
+        btnSettings.style.color = "var(--text-muted)";
+        btnSettings.style.borderBottom = "2px solid transparent";
+        form.style.display = "none";
+        outputView.style.display = "block";
+    });
 
     schema.forEach((field) => {
         const fieldContainer = document.createElement("div");
@@ -208,4 +283,5 @@ export function renderConfigForm(node, nodeId) {
     });
 
     formContainer.appendChild(form);
+    formContainer.appendChild(outputView);
 }
