@@ -34,10 +34,14 @@ export function setupEdgeRenderer() {
 }
 
 function renderEdges(nodes, edges, selectedEdgeId) {
-    canvasEdgesContainer.innerHTML = "";
+    // Only clear edges — an in-progress .rubber-band must survive a re-render
+    canvasEdgesContainer.querySelectorAll(".edge-path").forEach((p) => p.remove());
     if (!edges) return;
 
     const canvasRect = canvasEdgesContainer.getBoundingClientRect();
+    // #canvas-edges lives inside the transformed #canvas-world, so screen-space
+    // deltas must be divided by zoom to become world coordinates.
+    const { zoom } = store.getState().ui.viewport;
 
     for (const [edgeId, edge] of Object.entries(edges)) {
         const sourceNode = document.querySelector(`[data-node-id="${edge.source}"]`);
@@ -53,10 +57,10 @@ function renderEdges(nodes, edges, selectedEdgeId) {
         const sourceRect = sourceHandle.getBoundingClientRect();
         const targetRect = targetHandle.getBoundingClientRect();
 
-        const x1 = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
-        const y1 = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
-        const x2 = targetRect.left + targetRect.width / 2 - canvasRect.left;
-        const y2 = targetRect.top + targetRect.height / 2 - canvasRect.top;
+        const x1 = (sourceRect.left + sourceRect.width / 2 - canvasRect.left) / zoom;
+        const y1 = (sourceRect.top + sourceRect.height / 2 - canvasRect.top) / zoom;
+        const x2 = (targetRect.left + targetRect.width / 2 - canvasRect.left) / zoom;
+        const y2 = (targetRect.top + targetRect.height / 2 - canvasRect.top) / zoom;
 
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
         path.setAttribute("d", computeEdgePath(x1, y1, x2, y2));

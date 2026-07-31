@@ -44,6 +44,28 @@
   overflow: visible;
 }
 
+/* The layer ignores pointers so the canvas stays draggable; paths opt back in. */
+.edge-path {
+  pointer-events: stroke;
+  stroke-linecap: round;
+}
+
+/* ── Rubber Band (connection in progress) ────────────────── */
+
+.rubber-band {
+  fill: none;
+  stroke: var(--accent-primary);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  stroke-linecap: round;
+  pointer-events: none;
+  animation: rubber-band-flow 0.5s linear infinite;
+}
+
+@keyframes rubber-band-flow {
+  to { stroke-dashoffset: -10; }
+}
+
 /* ── Node Layer ──────────────────────────────────────────── */
 
 #canvas-nodes {

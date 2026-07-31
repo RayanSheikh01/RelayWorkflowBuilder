@@ -6,6 +6,8 @@ pointerup on input handle → validate → create edge
 
 import { store } from "../store.js";
 import { isValidConnection } from "../engine/validator.js";
+import { screenToCanvas, computeEdgePath } from "../utils/geometry.js";
+import { uid } from "../utils/uid.js";
 
 export function setupConnectionHandler() {
     let activeConnection = null;
@@ -17,12 +19,11 @@ export function setupConnectionHandler() {
 
     function screenToWorld(clientX, clientY) {
         const rect = canvasContainer.getBoundingClientRect();
-        const { x, y, zoom } = store.getState().ui.viewport;
-
-        return {
-            x: (clientX - rect.left - x) / zoom,
-            y: (clientY - rect.top - y) / zoom
-        };
+        return screenToCanvas(
+            clientX - rect.left,
+            clientY - rect.top,
+            store.getState().ui.viewport
+        );
     }
 
     function getHandlePositionWorld(handle) {
@@ -35,26 +36,22 @@ export function setupConnectionHandler() {
     }
 
     function createRubberBand(start) {
-        const line = document.createElementNS(
+        const path = document.createElementNS(
             "http://www.w3.org/2000/svg",
-            "line"
+            "path"
         );
 
-        line.setAttribute("x1", start.x);
-        line.setAttribute("y1", start.y);
-        line.setAttribute("x2", start.x);
-        line.setAttribute("y2", start.y);
+        path.setAttribute("d", computeEdgePath(start.x, start.y, start.x, start.y));
+        path.classList.add("rubber-band");
 
-        line.classList.add("rubber-band");
+        canvasEdgesContainer.appendChild(path);
 
-        canvasEdgesContainer.appendChild(line);
-
-        return line;
+        return path;
     }
 
-    function updateRubberBand(line, point) {
-        line.setAttribute("x2", point.x);
-        line.setAttribute("y2", point.y);
+    function updateRubberBand(path, point) {
+        const { x, y } = activeConnection.start;
+        path.setAttribute("d", computeEdgePath(x, y, point.x, point.y));
     }
 
     function removeRubberBand(line) {
@@ -87,12 +84,11 @@ export function setupConnectionHandler() {
         const start = getHandlePositionWorld(outputHandle);
 
         activeConnection = {
-            sourceNodeId: outputHandle.dataset.nodeId,
-            sourceHandleId: outputHandle.dataset.handleId,
+            source: outputHandle.dataset.nodeId,
+            sourceHandle: outputHandle.dataset.handleId || "output",
+            start,
             line: createRubberBand(start)
         };
-
-        console.log("Started connection", activeConnection);
     });
 
 
@@ -122,19 +118,19 @@ export function setupConnectionHandler() {
             const inputHandle = target.closest(".input-handle");
 
             if (inputHandle) {
-                const targetNodeId = inputHandle.dataset.nodeId;
-                const targetHandleId = inputHandle.dataset.handleId;
+                const target = inputHandle.dataset.nodeId;
+                const targetHandle = inputHandle.dataset.handleId || "input";
 
                 const edges = store.getState().workflow.edges;
 
                 const valid = isValidConnection(
-                    activeConnection.sourceNodeId,
-                    targetNodeId,
+                    activeConnection.source,
+                    target,
                     edges
                 );
 
                 if (valid) {
-                    const edgeId = crypto.randomUUID();
+                    const edgeId = uid("edge");
 
                     store.setState(
                         "workflow.edges",
@@ -142,15 +138,13 @@ export function setupConnectionHandler() {
                             ...edges,
                             [edgeId]: {
                                 id: edgeId,
-                                sourceNodeId: activeConnection.sourceNodeId,
-                                sourceHandleId: activeConnection.sourceHandleId,
-                                targetNodeId,
-                                targetHandleId
+                                source: activeConnection.source,
+                                sourceHandle: activeConnection.sourceHandle,
+                                target,
+                                targetHandle
                             }
                         }
                     );
-
-                    console.log("Created edge", edgeId);
                 }
             }
         }

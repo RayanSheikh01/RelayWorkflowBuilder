@@ -5,6 +5,9 @@ import { undoState, redoState, saveState } from "./history.js";
 setTimeout(() => saveState(store.getState()), 100);
 
 export function setupKeyboardShortcuts() {
+    let lastSnapshot = JSON.stringify(store.getState().workflow);
+    const markSnapshot = () => { lastSnapshot = JSON.stringify(store.getState().workflow); };
+
     window.addEventListener("keydown", (e) => {
         const isInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable;
         if (isInput) return;
@@ -22,6 +25,7 @@ export function setupKeyboardShortcuts() {
             const state = undoState();
             if (state && state.workflow) {
                 store.setState("workflow", state.workflow);
+                markSnapshot();
             }
         }
 
@@ -31,6 +35,7 @@ export function setupKeyboardShortcuts() {
             const state = redoState();
             if (state && state.workflow) {
                 store.setState("workflow", state.workflow);
+                markSnapshot();
             }
         }
 
@@ -44,9 +49,11 @@ export function setupKeyboardShortcuts() {
         }
     });
 
-    // Save state on pointerup for history (if workflow changed, ideally, but this is simple version)
+    // Snapshot on pointerup, but only when the workflow actually changed —
+    // otherwise every stray click pushes a duplicate and Ctrl+Z does nothing.
     window.addEventListener("pointerup", () => {
-        // Just save state when mouse is released
+        if (JSON.stringify(store.getState().workflow) === lastSnapshot) return;
+        markSnapshot();
         saveState(store.getState());
     });
 }
