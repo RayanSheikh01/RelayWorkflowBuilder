@@ -31,7 +31,7 @@ describe("validator", () => {
             expect(isValidConnection(target, source, existingEdges)).toBe(true);
         });
     });
-    
+
     describe("validateWorkflow", () => {
         test("Fails on empty workflow (no nodes)", () => {
             const nodes = {};
