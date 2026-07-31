@@ -15,9 +15,25 @@ export function setupCanvas() {
         canvasWorld.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
     });
 
-    // Middle-click pan or Space+drag pan (we'll just do middle-click for now)
+    let isSpaceDown = false;
+
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "Space" && e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+            isSpaceDown = true;
+            canvasContainer.style.cursor = "grab";
+        }
+    });
+
+    window.addEventListener("keyup", (e) => {
+        if (e.code === "Space") {
+            isSpaceDown = false;
+            if (!isPanning) canvasContainer.style.cursor = "default";
+        }
+    });
+
+    // Middle-click pan or Space+drag pan
     canvasContainer.addEventListener("pointerdown", (e) => {
-        if (e.button === 1 || e.button === 0 && e.altKey) {
+        if (e.button === 1 || e.button === 0 && (e.altKey || isSpaceDown)) {
             e.preventDefault();
             isPanning = true;
             lastMousePos = { x: e.clientX, y: e.clientY };

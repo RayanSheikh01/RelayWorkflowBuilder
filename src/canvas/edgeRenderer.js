@@ -1,66 +1,90 @@
 import { store } from "../store.js";
+import { computeEdgePath } from "../utils/geometry.js";
 
 const canvasEdgesContainer = document.getElementById("canvas-edges");
 
 export function setupEdgeRenderer() {
     if (!canvasEdgesContainer) return;
 
-    const edges = store.getState().workflow.edges;
+    store.subscribe((state) => {
+        renderEdges(state.workflow.nodes, state.workflow.edges, state.ui.selectedEdgeId);
+    });
 
-    for (const edgeId in edges) {
-        renderEdge(edges[edgeId]);
-    }
+    // Delete edge logic
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Delete") {
+            const { selectedEdgeId } = store.getState().ui;
+            if (selectedEdgeId) {
+                const currentEdges = store.getState().workflow.edges || {};
+                const newEdges = { ...currentEdges };
+                delete newEdges[selectedEdgeId];
+                
+                store.setState("workflow.edges", newEdges);
+                store.setState("ui.selectedEdgeId", null);
+            }
+        }
+    });
+
+    // Deselect edge on canvas click
+    window.addEventListener("pointerdown", (e) => {
+        if (!e.target.closest(".edge-path")) {
+            store.setState("ui.selectedEdgeId", null);
+        }
+    });
 }
 
-
-export function renderEdge(edge) {
-    const {
-        sourceNodeId,
-        targetNodeId
-    } = edge;
-
-    const sourceNode = document.querySelector(
-        `[data-node-id="${sourceNodeId}"]`
-    );
-
-    const targetNode = document.querySelector(
-        `[data-node-id="${targetNodeId}"]`
-    );
-
-    if (!sourceNode || !targetNode) return;
-
-
-    const sourceHandle = sourceNode.querySelector(".output-handle");
-    const targetHandle = targetNode.querySelector(".input-handle");
-
-    if (!sourceHandle || !targetHandle) return;
-
-
-    const sourceRect = sourceHandle.getBoundingClientRect();
-    const targetRect = targetHandle.getBoundingClientRect();
-
+function renderEdges(nodes, edges, selectedEdgeId) {
+    canvasEdgesContainer.innerHTML = "";
+    if (!edges) return;
 
     const canvasRect = canvasEdgesContainer.getBoundingClientRect();
 
+    for (const [edgeId, edge] of Object.entries(edges)) {
+        const sourceNode = document.querySelector(`[data-node-id="${edge.source}"]`);
+        const targetNode = document.querySelector(`[data-node-id="${edge.target}"]`);
 
-    const x1 = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
-    const y1 = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
+        if (!sourceNode || !targetNode) continue;
 
-    const x2 = targetRect.left + targetRect.width / 2 - canvasRect.left;
-    const y2 = targetRect.top + targetRect.height / 2 - canvasRect.top;
+        const sourceHandle = sourceNode.querySelector(".output-handle");
+        const targetHandle = targetNode.querySelector(".input-handle");
 
+        if (!sourceHandle || !targetHandle) continue;
 
-    const line = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "line"
-    );
+        const sourceRect = sourceHandle.getBoundingClientRect();
+        const targetRect = targetHandle.getBoundingClientRect();
 
-    line.setAttribute("x1", x1);
-    line.setAttribute("y1", y1);
-    line.setAttribute("x2", x2);
-    line.setAttribute("y2", y2);
+        const x1 = sourceRect.left + sourceRect.width / 2 - canvasRect.left;
+        const y1 = sourceRect.top + sourceRect.height / 2 - canvasRect.top;
+        const x2 = targetRect.left + targetRect.width / 2 - canvasRect.left;
+        const y2 = targetRect.top + targetRect.height / 2 - canvasRect.top;
 
-    line.classList.add("edge");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", computeEdgePath(x1, y1, x2, y2));
+        
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke-width", "2");
+        path.classList.add("edge-path");
+        path.style.cursor = "pointer";
 
-    canvasEdgesContainer.appendChild(line);
+        if (selectedEdgeId === edgeId) {
+            path.setAttribute("stroke", "var(--accent-primary)");
+            path.setAttribute("stroke-width", "3");
+        } else {
+            path.setAttribute("stroke", "var(--text-muted)");
+        }
+
+        const sourceState = nodes[edge.source];
+        if (sourceState && sourceState.status === 'running') {
+            path.classList.add("edge-flowing");
+            path.setAttribute("stroke", "var(--accent-warning)");
+        }
+
+        path.addEventListener("pointerdown", (e) => {
+            e.stopPropagation();
+            store.setState("ui.selectedEdgeId", edgeId);
+            store.setState("ui.selectedNodeId", null);
+        });
+
+        canvasEdgesContainer.appendChild(path);
+    }
 }

@@ -22,9 +22,26 @@ export function setupTopbar() {
         store.setState("workflow.name", inputName.value);
     }
 
-    // Sync input name with state
+    let saveTimeout;
+    // Sync input name with state and auto-save
     inputName.addEventListener("input", (e) => {
         store.setState("workflow.name", e.target.value);
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            const workflowData = store.getState().workflow;
+            saveWorkflow(currentWorkflowId, workflowData);
+            
+            // Visual feedback
+            if (btnSave) {
+                const originalText = btnSave.textContent;
+                btnSave.textContent = "Auto-saved";
+                btnSave.disabled = true;
+                setTimeout(() => {
+                    btnSave.textContent = originalText;
+                    btnSave.disabled = false;
+                }, 1000);
+            }
+        }, 800);
     });
 
     // Save button click

@@ -7,6 +7,8 @@ import { setupEdgeRenderer } from './canvas/edgeRenderer.js';
 import { setupConfigPanel } from './panels/configPanel.js';
 import { setupTopbar } from './panels/topbar.js';
 import { initLogPanel } from './panels/logPanel.js';
+import { setupStatusBar } from './panels/statusBar.js';
+import { setupKeyboardShortcuts } from './core/keyboard.js';
 
 console.log('⚡ Relay — AI Workflow Builder');
 console.log('Initializing Step 6 layout...');
@@ -19,3 +21,5 @@ setupNodeRenderer();
 setupEdgeRenderer();
 setupConnectionHandler();
 initLogPanel();
+setupStatusBar();
+setupKeyboardShortcuts();

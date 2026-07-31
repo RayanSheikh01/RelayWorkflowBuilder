@@ -32,6 +32,11 @@ export function setupConfigPanel() {
 export function renderConfigForm(node, nodeId) {
     const formContainer = document.getElementById("config-content");
     formContainer.innerHTML = "";
+    
+    // Trigger animation
+    formContainer.classList.remove("config-entering");
+    void formContainer.offsetWidth; // trigger reflow
+    formContainer.classList.add("config-entering");
 
     if (!node) {
         formContainer.innerHTML = `

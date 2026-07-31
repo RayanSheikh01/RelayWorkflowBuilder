@@ -70,7 +70,11 @@ function renderNodes(nodes, selectedNodeId) {
         if (!def) continue;
 
         const nodeEl = document.createElement("div");
-        nodeEl.className = "node-card";
+        nodeEl.className = "node-card node-entering";
+        nodeEl.dataset.nodeId = nodeId;
+        if (node.status === 'running') {
+            nodeEl.classList.add("node-running");
+        }
         if (selectedNodeId === nodeId) {
             nodeEl.classList.add("selected");
             nodeEl.style.boxShadow = `0 0 0 2px ${def.color}`;
